@@ -11,10 +11,25 @@ import os
 import sqlite3
 from datetime import datetime
 import json
+import re
 
 NOTES_FOLDER = 'notes'
 DB_PATH = 'notes/db.sqlite3'
 MD_EXTENSION = '.md'
+
+def create_slug(filename):
+    """Create a URL-friendly slug from a filename."""
+    # Remove .md extension
+    name = filename.replace('.md', '')
+    # Convert to lowercase and replace spaces/underscores with hyphens
+    slug = re.sub(r'[_\s]+', '-', name.lower())
+    # Remove any non-alphanumeric characters except hyphens
+    slug = re.sub(r'[^a-z0-9-]', '', slug)
+    # Remove consecutive hyphens
+    slug = re.sub(r'-+', '-', slug)
+    # Remove leading/trailing hyphens
+    slug = slug.strip('-')
+    return slug
 
 def get_md_files(folder):
     """Get a set of all .md files in the specified folder."""
@@ -77,6 +92,7 @@ def sync_notes():
         metadata_list.append({
             'note_id': row[0],
             'filename': row[1],
+            'slug': create_slug(row[1]),
             'created_at': row[2],
             'updated_at': row[3]
         })

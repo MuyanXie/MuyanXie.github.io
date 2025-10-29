@@ -1,19 +1,13 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import type { BlogMetadata } from '../App';
 import './BlogList.css';
-
-interface BlogMetadata {
-  note_id: number;
-  filename: string;
-  created_at: string;
-  updated_at: string;
-}
 
 interface BlogListProps {
   blogs: BlogMetadata[];
-  onSelectBlog: (blog: BlogMetadata) => void;
 }
 
-const BlogList: React.FC<BlogListProps> = ({ blogs, onSelectBlog }) => {
+const BlogList: React.FC<BlogListProps> = ({ blogs }) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -35,10 +29,10 @@ const BlogList: React.FC<BlogListProps> = ({ blogs, onSelectBlog }) => {
       </div>
       <div className="blog-cards">
         {blogs.map((blog) => (
-          <div
+          <Link
             key={blog.note_id}
+            to={`/blogs/${blog.slug}`}
             className="blog-card"
-            onClick={() => onSelectBlog(blog)}
           >
             <h3 className="blog-card-title">{getTitle(blog.filename)}</h3>
             <div className="blog-card-meta">
@@ -46,7 +40,7 @@ const BlogList: React.FC<BlogListProps> = ({ blogs, onSelectBlog }) => {
                 {formatDate(blog.updated_at)}
               </span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

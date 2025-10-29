@@ -5,6 +5,7 @@
 }
 
 .back-button {
+  display: inline-block;
   margin-bottom: 2rem;
   padding: 0.5rem 1rem;
   font-size: 0.95rem;
@@ -12,6 +13,8 @@
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   cursor: pointer;
+  text-decoration: none;
+  color: inherit;
   transition: all 0.2s ease;
 }
 

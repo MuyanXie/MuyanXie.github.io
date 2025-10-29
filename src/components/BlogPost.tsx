@@ -1,24 +1,23 @@
 import React, { useEffect, useState } from 'react';
+import { useParams, Link, Navigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import type { BlogMetadata } from '../App';
 import './BlogPost.css';
 
-interface BlogMetadata {
-  note_id: number;
-  filename: string;
-  created_at: string;
-  updated_at: string;
-}
-
 interface BlogPostProps {
-  blog: BlogMetadata;
-  onBack: () => void;
+  blogs: BlogMetadata[];
 }
 
-const BlogPost: React.FC<BlogPostProps> = ({ blog, onBack }) => {
+const BlogPost: React.FC<BlogPostProps> = ({ blogs }) => {
+  const { slug } = useParams<{ slug: string }>();
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
 
+  const blog = blogs.find(b => b.slug === slug);
+
   useEffect(() => {
+    if (!blog) return;
+
     const loadMarkdown = async () => {
       try {
         setLoading(true);
@@ -34,7 +33,11 @@ const BlogPost: React.FC<BlogPostProps> = ({ blog, onBack }) => {
     };
 
     loadMarkdown();
-  }, [blog.filename]);
+  }, [blog]);
+
+  if (!blog) {
+    return <Navigate to="/blogs" replace />;
+  }
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -51,9 +54,9 @@ const BlogPost: React.FC<BlogPostProps> = ({ blog, onBack }) => {
 
   return (
     <div className="blog-post">
-      <button className="back-button" onClick={onBack}>
+      <Link to="/blogs" className="back-button">
         ← Back to all posts
-      </button>
+      </Link>
       <article className="blog-post-content">
         <header className="blog-post-header">
           <h1 className="blog-post-title">{getTitle(blog.filename)}</h1>
