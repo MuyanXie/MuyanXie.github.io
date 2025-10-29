@@ -1,35 +1,61 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
+import Navbar from './components/Navbar';
+import BlogList from './components/BlogList';
+import BlogPost from './components/BlogPost';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+interface BlogMetadata {
+  note_id: number;
+  filename: string;
+  created_at: string;
+  updated_at: string;
 }
 
-export default App
+function App() {
+  const [blogs, setBlogs] = useState<BlogMetadata[]>([]);
+  const [selectedBlog, setSelectedBlog] = useState<BlogMetadata | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const loadMetadata = async () => {
+      try {
+        const response = await fetch('/notes/metadata.json');
+        const data = await response.json();
+        setBlogs(data);
+      } catch (error) {
+        console.error('Error loading metadata:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadMetadata();
+  }, []);
+
+  const handleSelectBlog = (blog: BlogMetadata) => {
+    setSelectedBlog(blog);
+  };
+
+  const handleBackToList = () => {
+    setSelectedBlog(null);
+  };
+
+  return (
+    <div className="app">
+      <Navbar />
+      <main className="main-content">
+        {loading ? (
+          <div className="loading-container">
+            <p>Loading blogs...</p>
+          </div>
+        ) : selectedBlog ? (
+          <BlogPost blog={selectedBlog} onBack={handleBackToList} />
+        ) : (
+          <BlogList blogs={blogs} onSelectBlog={handleSelectBlog} />
+        )}
+      </main>
+    </div>
+  );
+}
+
+export default App;
